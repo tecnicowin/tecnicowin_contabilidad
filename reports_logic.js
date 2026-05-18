@@ -225,5 +225,187 @@ window.FinancialReports = {
         });
 
         return { iva, islr };
+    },
+
+    getChangesInEquity: (startDate, endDate) => {
+        const start = new Date(startDate + 'T00:00:00');
+        const end = new Date(endDate + 'T23:59:59');
+        
+        // Cuentas de patrimonio (nivel 2 o 3)
+        const equityAccounts = window.chartOfAccounts.filter(acc => acc.code.startsWith('3') && acc.level >= 2);
+        const movements = {};
+        
+        equityAccounts.forEach(acc => {
+            movements[acc.code] = {
+                code: acc.code,
+                name: acc.name,
+                initial: 0,
+                increases: 0,
+                decreases: 0,
+                final: 0
+            };
+        });
+
+        // Sumar movimientos del diario
+        window.journalEntries.forEach(entry => {
+            const entryDate = new Date(entry.date + 'T12:00:00');
+            entry.items.forEach(item => {
+                const code = item.accountCode;
+                const matchAcc = equityAccounts.find(acc => code === acc.code || code.startsWith(acc.code + '.'));
+                if (matchAcc) {
+                    const m = movements[matchAcc.code];
+                    if (entryDate < start) {
+                        // Saldo inicial (Patrimonio es acreedor por naturaleza)
+                        m.initial += (item.credit - item.debit);
+                    } else if (entryDate >= start && entryDate <= end) {
+                        m.increases += item.credit;
+                        m.decreases += item.debit;
+                    }
+                }
+            });
+        });
+
+        // Calcular saldo final
+        Object.keys(movements).forEach(code => {
+            const m = movements[code];
+            m.final = m.initial + m.increases - m.decreases;
+        });
+
+        // Agregar Utilidad/Pérdida del periodo actual de manera dinámica
+        let currentPeriodNetIncome = 0;
+        window.journalEntries.forEach(entry => {
+            const entryDate = new Date(entry.date + 'T12:00:00');
+            if (entryDate >= start && entryDate <= end) {
+                entry.items.forEach(item => {
+                    if (item.accountCode.startsWith('4') || item.accountCode.startsWith('7')) {
+                        currentPeriodNetIncome += item.credit - item.debit; // Ingresos
+                    }
+                    if (item.accountCode.startsWith('5') || item.accountCode.startsWith('6')) {
+                        currentPeriodNetIncome -= item.debit - item.credit; // Egresos
+                    }
+                });
+            }
+        });
+
+        return {
+            movements: Object.values(movements),
+            currentPeriodNetIncome
+        };
+    },
+
+    getMonetaryGainLoss: (startDate, endDate) => {
+        const start = new Date(startDate + 'T00:00:00');
+        const end = new Date(endDate + 'T23:59:59');
+        
+        let initialAssets = 0;
+        let initialLiabilities = 0;
+        
+        let debitsAssets = 0;
+        let creditsAssets = 0;
+        let debitsLiabilities = 0;
+        let creditsLiabilities = 0;
+
+        window.journalEntries.forEach(entry => {
+            const entryDate = new Date(entry.date + 'T12:00:00');
+            entry.items.forEach(item => {
+                const isMonetaryAsset = item.accountCode.startsWith('1.1.01') || item.accountCode.startsWith('1.1.02');
+                const isMonetaryLiability = item.accountCode.startsWith('2.1');
+                
+                if (isMonetaryAsset) {
+                    if (entryDate < start) {
+                        initialAssets += (item.debit - item.credit);
+                    } else if (entryDate >= start && entryDate <= end) {
+                        debitsAssets += item.debit;
+                        creditsAssets += item.credit;
+                    }
+                }
+                
+                if (isMonetaryLiability) {
+                    if (entryDate < start) {
+                        initialLiabilities += (item.credit - item.debit);
+                    } else if (entryDate >= start && entryDate <= end) {
+                        debitsLiabilities += item.debit;
+                        creditsLiabilities += item.credit;
+                    }
+                }
+            });
+        });
+
+        const finalAssets = initialAssets + debitsAssets - creditsAssets;
+        const finalLiabilities = initialLiabilities + creditsLiabilities - debitsLiabilities;
+
+        const initialPosition = initialAssets - initialLiabilities;
+        const finalPosition = finalAssets - finalLiabilities;
+        
+        // Inflación mensual estimada (ej. 5.2% para PYMES)
+        const inflationRate = 0.052;
+        const averagePosition = (initialPosition + finalPosition) / 2;
+        const monetaryGainLoss = - (averagePosition * inflationRate); // Si los activos netos son positivos, se pierde valor monetario (Pérdida)
+
+        return {
+            initialAssets,
+            finalAssets,
+            initialLiabilities,
+            finalLiabilities,
+            initialPosition,
+            finalPosition,
+            inflationRate: inflationRate * 100,
+            monetaryGainLoss
+        };
+    },
+
+    getCashFlow: (startDate, endDate) => {
+        const start = new Date(startDate + 'T00:00:00');
+        const end = new Date(endDate + 'T23:59:59');
+        
+        let initialCash = 0;
+        let operating = 0;
+        let investing = 0;
+        let financing = 0;
+
+        window.journalEntries.forEach(entry => {
+            const entryDate = new Date(entry.date + 'T12:00:00');
+            
+            // Verificar si el asiento afecta la caja o bancos (1.1.01)
+            const cashItems = entry.items.filter(i => i.accountCode.startsWith('1.1.01'));
+            const netCashImpact = cashItems.reduce((sum, i) => sum + (i.debit - i.credit), 0);
+
+            if (entryDate < start) {
+                initialCash += netCashImpact;
+            } else if (entryDate >= start && entryDate <= end) {
+                if (netCashImpact === 0) return;
+                
+                // Categorizar el flujo de efectivo según los otros ítems del asiento
+                const otherItems = entry.items.filter(i => !i.accountCode.startsWith('1.1.01'));
+                
+                let isInvesting = false;
+                let isFinancing = false;
+
+                otherItems.forEach(i => {
+                    if (i.accountCode.startsWith('1.2')) isInvesting = true; // Activo Fijo (Propiedad Planta y Equipo)
+                    if (i.accountCode.startsWith('3')) isFinancing = true;   // Patrimonio
+                });
+
+                if (isInvesting) {
+                    investing += netCashImpact;
+                } else if (isFinancing) {
+                    financing += netCashImpact;
+                } else {
+                    operating += netCashImpact; // Por defecto es operacional
+                }
+            }
+        });
+
+        const netChange = operating + investing + financing;
+        const finalCash = initialCash + netChange;
+
+        return {
+            initialCash,
+            operating,
+            investing,
+            financing,
+            netChange,
+            finalCash
+        };
     }
 };

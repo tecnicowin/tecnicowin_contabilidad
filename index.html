@@ -114,6 +114,11 @@
                     <h2 id="current-module-title">Dashboard Operativo</h2>
                 </div>
                 <div class="topbar-right">
+                    <button class="btn-desktop-toggle" id="btn-toggle-desktop-mode"
+                        style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: linear-gradient(135deg, #4f46e5, #6366f1); border: none; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600; color: white; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(99,102,241,0.2);">
+                        <i data-lucide="monitor"></i>
+                        <span>Vista Clásica</span>
+                    </button>
                     <div class="period-selector">
                         <i data-lucide="calendar"></i>
                         <span>Periodo: Mayo 2026</span>
@@ -229,6 +234,227 @@
             </div>
         </main>
     </div>
+
+    <!-- Classic OS Desktop Simulation (Gálac Mode) -->
+    <div class="desktop-container" id="desktop-container" style="display: none;">
+        <!-- Classic OS Title Bar -->
+        <div class="desktop-titlebar">
+            <div class="titlebar-logo">
+                <div class="softwin-oval-logo">
+                    <span class="softwin-logo-s">S</span>
+                    <span class="softwin-logo-text">SoftWin</span>
+                </div>
+            </div>
+            <div class="titlebar-text">Sistema Integrado Administrativo - Contabilidad - v.24.1 &lt; Menú Principal
+                Contabilidad &gt;</div>
+            <div class="titlebar-controls">
+                <button class="titlebar-btn btn-min" title="Minimizar"><span>_</span></button>
+                <button class="titlebar-btn btn-max" title="Maximizar"><span>🗖</span></button>
+                <button class="titlebar-btn btn-close-os" id="btn-exit-desktop"
+                    title="Salir de Vista Clásica"><span>✕</span></button>
+            </div>
+        </div>
+
+        <!-- Classic Dropdown Menu Bar -->
+        <div class="desktop-menubar">
+            <div class="menu-item-dropdown">
+                <button class="menu-trigger">Comprobante</button>
+                <div class="menu-dropdown-content">
+                    <a href="#" data-desktop-action="accounting"><i data-lucide="book-open"></i> Contabilizar
+                        Comprobantes (Diario)</a>
+                    <a href="#" data-desktop-action="sales_purchases"><i data-lucide="shopping-cart"></i> Registrar
+                        Ventas o Compras</a>
+                    <a href="#" data-desktop-action="retenciones"><i data-lucide="file-check"></i> Comprobantes de
+                        Retención</a>
+                </div>
+            </div>
+            <div class="menu-item-dropdown">
+                <button class="menu-trigger">Cuenta</button>
+                <div class="menu-dropdown-content">
+                    <a href="#" data-desktop-action="chart"><i data-lucide="list-tree"></i> Plan de Cuentas
+                        (Catálogo)</a>
+                </div>
+            </div>
+            <div class="menu-item-dropdown">
+                <button class="menu-trigger">Balances</button>
+                <div class="menu-dropdown-content">
+                    <a href="#" data-desktop-action="reports-income"><i data-lucide="pie-chart"></i> Informes
+                        Financieros</a>
+                    <a href="#" data-desktop-action="reports-diario"><i data-lucide="book-open"></i> Balance de
+                        Comprobación</a>
+                    <a href="#" data-desktop-action="reports-mayor"><i data-lucide="search"></i> Libro Mayor</a>
+                    <a href="#" class="highlighted-menu-item" id="menu-trigger-otros-informes"><i
+                            data-lucide="layers"></i> Otros Informes Financieros</a>
+                    <a href="#" data-desktop-action="dashboard"><i data-lucide="trending-up"></i> Estado de Resultados
+                        por Centro de Costos</a>
+                </div>
+            </div>
+            <div class="menu-item-dropdown">
+                <button class="menu-trigger">NIIF</button>
+                <div class="menu-dropdown-content">
+                    <a href="#" id="menu-niif-alert"><i data-lucide="scale"></i> Declaración de Cumplimiento NIIF
+                        PYME</a>
+                </div>
+            </div>
+            <div class="menu-item-dropdown">
+                <button class="menu-trigger">Informes</button>
+                <div class="menu-dropdown-content">
+                    <a href="#" data-desktop-action="taxes"><i data-lucide="percent"></i> Control del IVA</a>
+                    <a href="#" data-desktop-action="islr"><i data-lucide="scale"></i> Impuesto (ISLR)</a>
+                    <a href="#" data-desktop-action="queries"><i data-lucide="search"></i> Consultas & Auditoría</a>
+                </div>
+            </div>
+            <div class="menu-item-dropdown">
+                <button class="menu-trigger">Periodo</button>
+                <div class="menu-dropdown-content">
+                    <a href="#" id="menu-trigger-periodo"><i data-lucide="calendar"></i> Seleccionar Periodo Fiscal</a>
+                </div>
+            </div>
+            <div class="menu-item-dropdown">
+                <button class="menu-trigger">Cerrar Periodo</button>
+                <div class="menu-dropdown-content">
+                    <a href="#" id="menu-trigger-cerrar"><i data-lucide="lock"></i> Bloquear Periodo de Mayo 2026</a>
+                </div>
+            </div>
+            <div class="menu-item-dropdown">
+                <button class="menu-trigger">Menús</button>
+                <div class="menu-dropdown-content">
+                    <a href="#" id="btn-toggle-modern-mode"><i data-lucide="layout-dashboard"></i> Cambiar a Vista
+                        Moderna</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Workspace where Draggable Windows Live -->
+        <div class="desktop-workspace" id="desktop-workspace">
+            <div class="desktop-wallpaper-logo">
+                <div class="wallpaper-logo-circle"></div>
+                <div class="wallpaper-logo-text">Soft<span>Win</span></div>
+                <div class="wallpaper-logo-subtitle">Sistema Integrado Contable</div>
+            </div>
+
+            <!-- DRAGGABLE WINDOW 1: Classic 'Informes' Modal Window (The Gálac Dialog) -->
+            <div class="classic-window draggable-window" id="window-otros-informes"
+                style="display: none; top: 100px; left: 150px; width: 680px; z-index: 1000;">
+                <div class="classic-window-titlebar draggable-handle">
+                    <div class="window-title-left">
+                        <i data-lucide="files" class="title-icon"></i>
+                        <span>Informes</span>
+                    </div>
+                    <div class="window-controls">
+                        <button class="win-btn win-min"><span>_</span></button>
+                        <button class="win-btn win-max"><span>🗖</span></button>
+                        <button class="win-btn win-close" id="btn-close-otros-informes"><span>✕</span></button>
+                    </div>
+                </div>
+
+                <div class="classic-window-body">
+                    <div class="classic-informes-layout">
+                        <!-- Left pane: Radio buttons selector -->
+                        <div class="classic-informes-left">
+                            <div class="classic-fieldset">
+                                <div class="classic-fieldset-title">Selección de Informe</div>
+                                <div class="classic-radio-group">
+                                    <label class="classic-radio-label">
+                                        <input type="radio" name="classic-report-select" value="patrimonio" checked>
+                                        <span>Mov.Ctas. Patrimonio</span>
+                                    </label>
+                                    <label class="classic-radio-label">
+                                        <input type="radio" name="classic-report-select" value="monetaria">
+                                        <span>Ganancia y Pérdida Monetaria</span>
+                                    </label>
+                                    <label class="classic-radio-label">
+                                        <input type="radio" name="classic-report-select" value="efectivo">
+                                        <span>Movimiento del Efectivo</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right pane: Parameters -->
+                        <div class="classic-informes-right">
+                            <h3 class="classic-report-title" id="classic-dynamic-report-title">Movimiento Cuentas de
+                                Patrimonio</h3>
+
+                            <div class="classic-date-container">
+                                <div class="classic-section-title">Entre Fechas</div>
+                                <div class="classic-form-group">
+                                    <label>Fecha Inicial</label>
+                                    <input type="date" id="classic-date-start" value="2026-01-01" class="classic-input">
+                                </div>
+                                <div class="classic-form-group">
+                                    <label>Fecha Final</label>
+                                    <input type="date" id="classic-date-end" value="2026-05-31" class="classic-input">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom actions pane -->
+                    <div class="classic-informes-bottom">
+                        <button class="classic-btn" id="btn-classic-printer"><i data-lucide="printer"></i>
+                            <u>I</u>mpresora</button>
+                        <button class="classic-btn" id="btn-classic-pantalla"><i data-lucide="monitor"></i>
+                            <u>P</u>antalla</button>
+                        <button class="classic-btn" id="btn-classic-salir"><i data-lucide="log-out"></i>
+                            <u>S</u>alir</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DRAGGABLE WINDOW 2: Draggable Module Wrapper (Runs existing modules!) -->
+            <div class="classic-window draggable-window" id="window-module-wrapper"
+                style="display: none; top: 50px; left: 80px; width: 950px; height: 600px; z-index: 900;">
+                <div class="classic-window-titlebar draggable-handle">
+                    <div class="window-title-left">
+                        <i data-lucide="monitor" class="title-icon" id="wrapper-window-icon"></i>
+                        <span id="wrapper-window-title">Módulo</span>
+                    </div>
+                    <div class="window-controls">
+                        <button class="win-btn win-min"><span>_</span></button>
+                        <button class="win-btn win-max" id="btn-max-module-wrapper"><span>🗖</span></button>
+                        <button class="win-btn win-close" id="btn-close-module-wrapper"><span>✕</span></button>
+                    </div>
+                </div>
+                <div class="classic-window-body scrollable-body" id="wrapper-window-body"
+                    style="height: calc(100% - 38px); overflow-y: auto; background: var(--background);">
+                    <!-- Module view contents will be loaded dynamically here -->
+                </div>
+            </div>
+
+            <!-- DRAGGABLE WINDOW 3: Draggable Report Viewer (Shows selected classic reports) -->
+            <div class="classic-window draggable-window" id="window-report-viewer"
+                style="display: none; top: 80px; left: 300px; width: 850px; height: 580px; z-index: 1100;">
+                <div class="classic-window-titlebar draggable-handle">
+                    <div class="window-title-left">
+                        <i data-lucide="file-text" class="title-icon"></i>
+                        <span id="report-viewer-title">Visor de Informes</span>
+                    </div>
+                    <div class="window-controls">
+                        <button class="win-btn win-min"><span>_</span></button>
+                        <button class="win-btn win-max" id="btn-max-report-viewer"><span>🗖</span></button>
+                        <button class="win-btn win-close" id="btn-close-report-viewer"><span>✕</span></button>
+                    </div>
+                </div>
+                <div class="classic-window-body scrollable-body"
+                    style="height: calc(100% - 38px); overflow-y: auto; padding: 1.5rem; background: #cbd5e1;">
+                    <div class="viewer-actions no-print"
+                        style="display: flex; gap: 0.75rem; margin-bottom: 1rem; justify-content: flex-end;">
+                        <button class="classic-btn" id="btn-viewer-print"><i data-lucide="printer"></i>
+                            Imprimir</button>
+                        <button class="classic-btn" id="btn-viewer-excel"><i data-lucide="file-spreadsheet"></i>
+                            Exportar CSV</button>
+                        <button class="classic-btn" id="btn-viewer-close"><i data-lucide="x"></i> Cerrar</button>
+                    </div>
+                    <div id="report-viewer-content" class="report-paper-classic"
+                        style="background: white; min-height: 100%; border: 1px solid #94a3b8; border-radius: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); padding: 3rem;">
+                        <!-- Report HTML gets injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="accounts.js"></script>
     <script src="journal.js"></script>
     <script src="reports_logic.js"></script>

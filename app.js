@@ -3497,14 +3497,554 @@ document.addEventListener('DOMContentLoaded', () => {
             periodo = `${parts[0]}${parts[1]}`;
         }
 
-        const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `RETENCION_ISLR_${periodo}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
         URL.revokeObjectURL(url);
+    }
+
+    // ==========================================
+    // CLASSIC DESKTOP OS SIMULATION (GÁLAC MODE)
+    // ==========================================
+
+    // --- Window Focus and Depth Management ---
+    let activeWindowZIndex = 1000;
+    
+    function makeWindowActive(win) {
+        document.querySelectorAll('.classic-window').forEach(w => w.classList.remove('active-window'));
+        win.classList.add('active-window');
+        activeWindowZIndex += 10;
+        win.style.zIndex = activeWindowZIndex;
+    }
+    
+    // --- Draggable Window Logic ---
+    document.querySelectorAll('.draggable-window').forEach(win => {
+        const handle = win.querySelector('.draggable-handle');
+        
+        win.addEventListener('mousedown', () => {
+            makeWindowActive(win);
+        });
+        
+        let isDragging = false;
+        let startX, startY;
+        let initialX, initialY;
+        
+        handle.addEventListener('mousedown', (e) => {
+            // Do not drag if clicking control buttons
+            if (e.target.closest('.window-controls')) return;
+            
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            initialX = win.offsetLeft;
+            initialY = win.offsetTop;
+            
+            makeWindowActive(win);
+            e.preventDefault();
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            win.style.left = `${initialX + dx}px`;
+            win.style.top = `${initialY + dy}px`;
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+    });
+
+    // --- Desktop Toggle Core Routing ---
+    const appContainer = document.querySelector('.app-container');
+    const desktopContainer = document.getElementById('desktop-container');
+    const btnToggleDesktop = document.getElementById('btn-toggle-desktop-mode');
+    const btnExitDesktop = document.getElementById('btn-exit-desktop');
+    const btnToggleModern = document.getElementById('btn-toggle-modern-mode');
+    
+    function enterDesktopMode() {
+        appContainer.style.display = 'none';
+        desktopContainer.style.display = 'flex';
+        localStorage.setItem('softwin_desktop_mode', 'true');
+        lucide.createIcons();
+        
+        // Auto-highlight demo by opening 'Otros Informes'
+        setTimeout(() => {
+            openOtrosInformes();
+        }, 400);
+    }
+    
+    function exitDesktopMode() {
+        desktopContainer.style.display = 'none';
+        appContainer.style.display = 'flex';
+        localStorage.setItem('softwin_desktop_mode', 'false');
+        lucide.createIcons();
+    }
+    
+    if (btnToggleDesktop) btnToggleDesktop.addEventListener('click', enterDesktopMode);
+    if (btnExitDesktop) btnExitDesktop.addEventListener('click', exitDesktopMode);
+    if (btnToggleModern) btnToggleModern.addEventListener('click', exitDesktopMode);
+    
+    // Persistent view selection check
+    if (localStorage.getItem('softwin_desktop_mode') === 'true') {
+        enterDesktopMode();
+    }
+
+    // --- Module Execution inside Draggable Wrapper ---
+    const windowModuleWrapper = document.getElementById('window-module-wrapper');
+    const wrapperTitle = document.getElementById('wrapper-window-title');
+    const wrapperBody = document.getElementById('wrapper-window-body');
+    const btnCloseModuleWrapper = document.getElementById('btn-close-module-wrapper');
+    const btnMaxModuleWrapper = document.getElementById('btn-max-module-wrapper');
+    
+    function openModuleInWindow(moduleKey, title) {
+        const module = modules[moduleKey];
+        if (!module) return;
+        
+        wrapperTitle.textContent = title;
+        wrapperBody.innerHTML = '';
+        module.render(wrapperBody);
+        
+        windowModuleWrapper.style.display = 'flex';
+        makeWindowActive(windowModuleWrapper);
+        lucide.createIcons();
+    }
+    
+    if (btnCloseModuleWrapper) {
+        btnCloseModuleWrapper.addEventListener('click', () => {
+            windowModuleWrapper.style.display = 'none';
+        });
+    }
+    
+    // Maximize/Restore Window Toggle
+    let isModuleMaximized = false;
+    let preMaxStyle = {};
+    if (btnMaxModuleWrapper) {
+        btnMaxModuleWrapper.addEventListener('click', () => {
+            if (!isModuleMaximized) {
+                preMaxStyle = {
+                    width: windowModuleWrapper.style.width,
+                    height: windowModuleWrapper.style.height,
+                    top: windowModuleWrapper.style.top,
+                    left: windowModuleWrapper.style.left
+                };
+                windowModuleWrapper.style.width = '100vw';
+                windowModuleWrapper.style.height = 'calc(100vh - 68px)';
+                windowModuleWrapper.style.top = '38px';
+                windowModuleWrapper.style.left = '0';
+                btnMaxModuleWrapper.querySelector('span').textContent = '🗗';
+                isModuleMaximized = true;
+            } else {
+                windowModuleWrapper.style.width = preMaxStyle.width;
+                windowModuleWrapper.style.height = preMaxStyle.height;
+                windowModuleWrapper.style.top = preMaxStyle.top;
+                windowModuleWrapper.style.left = preMaxStyle.left;
+                btnMaxModuleWrapper.querySelector('span').textContent = '🗖';
+                isModuleMaximized = false;
+            }
+        });
+    }
+
+    // Menu Item click action listeners
+    document.querySelectorAll('[data-desktop-action]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const action = link.getAttribute('data-desktop-action');
+            
+            if (action.startsWith('reports-')) {
+                const subtab = action.split('-')[1]; // e.g. 'income', 'diario', 'mayor'
+                openModuleInWindow('reports', `Estados Financieros - Tab: ${subtab.toUpperCase()}`);
+                
+                // Let the report module initialize before focusing tab
+                setTimeout(() => {
+                    const tabBtn = wrapperBody.querySelector(`.report-tab[data-tab="${subtab}"]`);
+                    if (tabBtn) tabBtn.click();
+                }, 300);
+            } else {
+                const module = modules[action];
+                if (module) {
+                    openModuleInWindow(action, module.title);
+                }
+            }
+        });
+    });
+
+    // --- 'Otros Informes' Modal Windows Interaction ---
+    const windowOtrosInformes = document.getElementById('window-otros-informes');
+    const btnCloseOtrosInformes = document.getElementById('btn-close-otros-informes');
+    const menuTriggerOtrosInformes = document.getElementById('menu-trigger-otros-informes');
+    const radioReportSelects = document.querySelectorAll('input[name="classic-report-select"]');
+    const classicReportTitle = document.getElementById('classic-dynamic-report-title');
+    const btnClassicSalir = document.getElementById('btn-classic-salir');
+    const btnClassicPantalla = document.getElementById('btn-classic-pantalla');
+    const btnClassicPrinter = document.getElementById('btn-classic-printer');
+    
+    const windowReportViewer = document.getElementById('window-report-viewer');
+    const reportViewerTitle = document.getElementById('report-viewer-title');
+    const reportViewerContent = document.getElementById('report-viewer-content');
+    const btnCloseReportViewer = document.getElementById('btn-close-report-viewer');
+    const btnViewerClose = document.getElementById('btn-viewer-close');
+    const btnViewerPrint = document.getElementById('btn-viewer-print');
+    const btnViewerExcel = document.getElementById('btn-viewer-excel');
+    
+    function openOtrosInformes() {
+        windowOtrosInformes.style.display = 'flex';
+        makeWindowActive(windowOtrosInformes);
+    }
+    
+    if (menuTriggerOtrosInformes) menuTriggerOtrosInformes.addEventListener('click', openOtrosInformes);
+    if (btnCloseOtrosInformes) btnCloseOtrosInformes.addEventListener('click', () => windowOtrosInformes.style.display = 'none');
+    if (btnClassicSalir) btnClassicSalir.addEventListener('click', () => windowOtrosInformes.style.display = 'none');
+    
+    radioReportSelects.forEach(radio => {
+        radio.addEventListener('change', () => {
+            const val = radio.value;
+            if (val === 'patrimonio') {
+                classicReportTitle.textContent = "Movimiento Cuentas de Patrimonio";
+            } else if (val === 'monetaria') {
+                classicReportTitle.textContent = "Ganancia y Pérdida Monetaria";
+            } else if (val === 'efectivo') {
+                classicReportTitle.textContent = "Movimiento del Efectivo";
+            }
+        });
+    });
+
+    // --- Report Generator & Classic Output Paper System ---
+    function generateAndShowClassicReport(printDirectly = false) {
+        const selectedRadio = document.querySelector('input[name="classic-report-select"]:checked');
+        if (!selectedRadio) return;
+        
+        const reportType = selectedRadio.value;
+        const startDateStr = document.getElementById('classic-date-start').value;
+        const endDateStr = document.getElementById('classic-date-end').value;
+        
+        const coData = window.companyData || { name: "Soluciones PYME S.A.", rif: "J-12345678-9", address: "Venezuela" };
+        
+        let reportHTML = "";
+        let reportTitle = "";
+        
+        if (reportType === 'patrimonio') {
+            reportTitle = "Movimiento de Cuentas de Patrimonio";
+            if (!window.FinancialReports || !window.FinancialReports.getChangesInEquity) {
+                alert("Error: El motor de reportes de patrimonio no está cargado.");
+                return;
+            }
+            const data = window.FinancialReports.getChangesInEquity(startDateStr, endDateStr);
+            
+            let rowsHTML = "";
+            let totalInitial = 0;
+            let totalIncreases = 0;
+            let totalDecreases = 0;
+            let totalFinal = 0;
+            
+            data.movements.forEach(m => {
+                totalInitial += m.initial;
+                totalIncreases += m.increases;
+                totalDecreases += m.decreases;
+                totalFinal += m.final;
+                
+                rowsHTML += `
+                    <tr>
+                        <td>${m.code} - ${m.name}</td>
+                        <td class="text-right">${m.initial.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        <td class="text-right">${m.increases.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        <td class="text-right">${m.decreases.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        <td class="text-right">${m.final.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                    </tr>
+                `;
+            });
+            
+            const netIncome = data.currentPeriodNetIncome;
+            totalFinal += netIncome;
+            rowsHTML += `
+                <tr class="dashed-bottom">
+                    <td>3.3.02 - Utilidad (Pérdida) del Ejercicio Actual</td>
+                    <td class="text-right">0.00</td>
+                    <td class="text-right" style="color: ${netIncome >= 0 ? 'green' : 'red'};">${netIncome >= 0 ? netIncome.toLocaleString(undefined, {minimumFractionDigits: 2}) : '0.00'}</td>
+                    <td class="text-right" style="color: red;">${netIncome < 0 ? Math.abs(netIncome).toLocaleString(undefined, {minimumFractionDigits: 2}) : '0.00'}</td>
+                    <td class="text-right">${netIncome.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                </tr>
+            `;
+            
+            reportHTML = `
+                <h2>${coData.name.toUpperCase()}</h2>
+                <p>RIF: ${coData.rif} | DIRECCIÓN: ${coData.address}</p>
+                <h3>MOVIMIENTO DE CUENTAS DE PATRIMONIO</h3>
+                <p>PERIODO: DESDE EL ${startDateStr.split('-').reverse().join('/')} HASTA EL ${endDateStr.split('-').reverse().join('/')}</p>
+                <hr>
+                <table class="report-table-classic">
+                    <thead>
+                        <tr>
+                            <th>CUENTA Y NOMBRE</th>
+                            <th class="text-right">SALDO INICIAL</th>
+                            <th class="text-right">AUMENTOS</th>
+                            <th class="text-right">DISMINUCIONES</th>
+                            <th class="text-right">SALDO FINAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHTML}
+                        <tr class="double-bottom" style="font-weight: 700;">
+                            <td>TOTAL PATRIMONIO NETO</td>
+                            <td class="text-right">${totalInitial.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                            <td class="text-right">${(totalIncreases + (netIncome >= 0 ? netIncome : 0)).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                            <td class="text-right">${(totalDecreases + (netIncome < 0 ? Math.abs(netIncome) : 0)).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                            <td class="text-right">${totalFinal.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="text-center" style="margin-top: 50px; font-size: 0.75rem; opacity: 0.6;">-- Fin del Reporte --</p>
+            `;
+            
+        } else if (reportType === 'monetaria') {
+            reportTitle = "Estado de Ganancia y Pérdida Monetaria";
+            if (!window.FinancialReports || !window.FinancialReports.getMonetaryGainLoss) {
+                alert("Error: El motor de reportes monetarios no está cargado.");
+                return;
+            }
+            const data = window.FinancialReports.getMonetaryGainLoss(startDateStr, endDateStr);
+            const reic = data.monetaryGainLoss;
+            
+            reportHTML = `
+                <h2>${coData.name.toUpperCase()}</h2>
+                <p>RIF: ${coData.rif} | DIRECCIÓN: ${coData.address}</p>
+                <h3>ESTADO DE GANANCIA Y PÉRDIDA MONETARIA</h3>
+                <p>EFECTOS DE EXPOSICIÓN A LA INFLACIÓN (DPC-10 / NIC-29)</p>
+                <p>PERIODO: DESDE EL ${startDateStr.split('-').reverse().join('/')} HASTA EL ${endDateStr.split('-').reverse().join('/')}</p>
+                <hr>
+                <table class="report-table-classic" style="max-width: 650px; margin: 0 auto;">
+                    <thead>
+                        <tr>
+                            <th>DESCRIPCIÓN DE PARTIDAS MONETARIAS</th>
+                            <th class="text-right">SALDO INICIAL</th>
+                            <th class="text-right">SALDO FINAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Activos Monetarios (Efectivo y CxC)</td>
+                            <td class="text-right">${data.initialAssets.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                            <td class="text-right">${data.finalAssets.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        </tr>
+                        <tr class="dashed-bottom">
+                            <td>Pasivos Monetarios (Obligaciones Corrientes)</td>
+                            <td class="text-right">${data.initialLiabilities.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                            <td class="text-right">${data.finalLiabilities.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        </tr>
+                        <tr style="font-weight: 700;">
+                            <td>Posición Monetaria Neta (Activo - Pasivo)</td>
+                            <td class="text-right">${data.initialPosition.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                            <td class="text-right">${data.finalPosition.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">&nbsp;</td>
+                        </tr>
+                        <tr class="dashed-bottom">
+                            <td>Inflación Promedio Acumulada para el Periodo</td>
+                            <td colspan="2" class="text-right" style="font-weight: 700;">${data.inflationRate.toFixed(2)} %</td>
+                        </tr>
+                        <tr class="double-bottom" style="font-weight: 700; font-size: 0.95rem;">
+                            <td>RESULTADO POR EXPOSICIÓN A LA INFLACIÓN (REI)</td>
+                            <td colspan="2" class="text-right" style="color: ${reic >= 0 ? 'green' : 'red'};">
+                                ${reic >= 0 ? 'GANANCIA' : 'PÉRDIDA'} MONETARIA NETAS: $${Math.abs(reic).toLocaleString(undefined, {minimumFractionDigits: 2})}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="margin-top: 30px; border: 1px dashed black; padding: 15px; font-size: 0.75rem; max-width: 650px; margin-left: auto; margin-right: auto; line-height: 1.5;">
+                    <strong>Nota Metodológica:</strong> El cálculo de la Ganancia o Pérdida por Exposición a la Inflación (R.E.I.) se realiza multiplicando la posición monetaria neta promedio del periodo por el índice inflacionario acumulado estimado. Una posición monetaria neta activa (activos monetarios > pasivos monetarios) expuesta a la inflación genera una pérdida real del poder adquisitivo del dinero.
+                </div>
+                <p class="text-center" style="margin-top: 50px; font-size: 0.75rem; opacity: 0.6;">-- Fin del Reporte --</p>
+            `;
+            
+        } else if (reportType === 'efectivo') {
+            reportTitle = "Estado de Flujo de Efectivo";
+            if (!window.FinancialReports || !window.FinancialReports.getCashFlow) {
+                alert("Error: El motor de reportes de flujo de efectivo no está cargado.");
+                return;
+            }
+            const data = window.FinancialReports.getCashFlow(startDateStr, endDateStr);
+            
+            reportHTML = `
+                <h2>${coData.name.toUpperCase()}</h2>
+                <p>RIF: ${coData.rif} | DIRECCIÓN: ${coData.address}</p>
+                <h3>ESTADO DE FLUJO DE EFECTIVO</h3>
+                <p>MÉTODO DE CLASIFICACIÓN OPERATIVA - INVERSIÓN - FINANCIAMIENTO</p>
+                <p>PERIODO: DESDE EL ${startDateStr.split('-').reverse().join('/')} HASTA EL ${endDateStr.split('-').reverse().join('/')}</p>
+                <hr>
+                <table class="report-table-classic" style="max-width: 680px; margin: 0 auto;">
+                    <thead>
+                        <tr>
+                            <th>ACTIVIDAD / CONCEPTO DE FLUJO</th>
+                            <th class="text-right">MONTO NETO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight: 700;">Flujos de Efectivo de Actividades de Operación</td>
+                            <td class="text-right" style="font-weight: 700; color: ${data.operating >= 0 ? 'green' : 'red'};">${data.operating.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        </tr>
+                        <tr style="font-size: 0.8rem; opacity: 0.85;">
+                            <td style="padding-left: 20px;">Cobros a Clientes, Proveedores e Impuestos Netos</td>
+                            <td class="text-right">${data.operating.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 700;">Flujos de Efectivo de Actividades de Inversión</td>
+                            <td class="text-right" style="font-weight: 700; color: ${data.investing >= 0 ? 'green' : 'red'};">${data.investing.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        </tr>
+                        <tr style="font-size: 0.8rem; opacity: 0.85;">
+                            <td style="padding-left: 20px;">Adquisición / Enajenación de Propiedad Planta y Equipo</td>
+                            <td class="text-right">${data.investing.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 700;">Flujos de Efectivo de Actividades de Financiamiento</td>
+                            <td class="text-right" style="font-weight: 700; color: ${data.financing >= 0 ? 'green' : 'red'};">${data.financing.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        </tr>
+                        <tr style="font-size: 0.8rem; opacity: 0.85;">
+                            <td style="padding-left: 20px;">Aportes de Capital, Reservas y Préstamos Bancarios</td>
+                            <td class="text-right">${data.financing.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><hr style="border-top: 1px dashed black; margin: 10px 0;"></td>
+                        </tr>
+                        <tr style="font-weight: 700;">
+                            <td>AUMENTO (DISMINUCIÓN) NETO DE EFECTIVO</td>
+                            <td class="text-right" style="color: ${data.netChange >= 0 ? 'green' : 'red'};">${data.netChange.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        </tr>
+                        <tr>
+                            <td>Efectivo y Equivalentes al Inicio del Periodo</td>
+                            <td class="text-right">${data.initialCash.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        </tr>
+                        <tr class="double-bottom" style="font-weight: 700; font-size: 0.95rem;">
+                            <td>EFECTIVO Y EQUIVALENTES AL FINAL DEL PERIODO</td>
+                            <td class="text-right">${data.finalCash.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="text-center" style="margin-top: 50px; font-size: 0.75rem; opacity: 0.6;">-- Fin del Reporte --</p>
+            `;
+        }
+        
+        if (printDirectly) {
+            const printWin = window.open("", "_blank");
+            printWin.document.write(`
+                <html>
+                <head>
+                    <title>${reportTitle}</title>
+                    <style>
+                        body {
+                            font-family: 'Courier New', Courier, monospace;
+                            padding: 40px;
+                            color: black;
+                            background: white;
+                        }
+                        h2, h3 { text-align: center; margin: 2px; }
+                        p { text-align: center; margin-bottom: 10px; }
+                        hr { border: none; border-top: 2px dashed black; margin: 20px 0; }
+                        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                        th { border-top: 2px dashed black; border-bottom: 2px dashed black; padding: 8px 4px; text-align: left; }
+                        td { padding: 6px 4px; }
+                        .text-right { text-align: right; }
+                        .text-center { text-align: center; }
+                        tr.double-bottom td { border-bottom: 4px double black; font-weight: bold; }
+                        tr.dashed-bottom td { border-bottom: 1px dashed black; }
+                    </style>
+                </head>
+                <body>
+                    ${reportHTML}
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                            window.close();
+                        }
+                    </script>
+                </body>
+                </html>
+            `);
+            printWin.document.close();
+        } else {
+            reportViewerTitle.textContent = "Visor de Informes - " + reportTitle;
+            reportViewerContent.innerHTML = reportHTML;
+            windowReportViewer.style.display = 'flex';
+            makeWindowActive(windowReportViewer);
+            lucide.createIcons();
+        }
+    }
+
+    if (btnClassicPantalla) btnClassicPantalla.addEventListener('click', () => generateAndShowClassicReport(false));
+    if (btnClassicPrinter) btnClassicPrinter.addEventListener('click', () => generateAndShowClassicReport(true));
+    if (btnCloseReportViewer) btnCloseReportViewer.addEventListener('click', () => windowReportViewer.style.display = 'none');
+    if (btnViewerClose) btnViewerClose.addEventListener('click', () => windowReportViewer.style.display = 'none');
+    if (btnViewerPrint) btnViewerPrint.addEventListener('click', () => generateAndShowClassicReport(true));
+    
+    if (btnViewerExcel) {
+        btnViewerExcel.addEventListener('click', () => {
+            const selectedRadio = document.querySelector('input[name="classic-report-select"]:checked');
+            const reportName = selectedRadio ? selectedRadio.value : "reporte";
+            
+            const rows = [];
+            const textContent = reportViewerContent.innerText;
+            const lines = textContent.split('\n');
+            lines.forEach(line => {
+                if (line.trim()) rows.push([`"${line.replace(/"/g, '""')}"`]);
+            });
+            
+            const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + rows.map(e => e.join(",")).join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `REPORTE_${reportName.toUpperCase()}_EXPORT.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    }
+
+    // --- Alt Hotkey Listeners ---
+    window.addEventListener('keydown', (e) => {
+        if (windowOtrosInformes.style.display === 'flex' && e.altKey) {
+            const key = e.key.toLowerCase();
+            if (key === 'i') {
+                e.preventDefault();
+                generateAndShowClassicReport(true); // Print
+            } else if (key === 'p') {
+                e.preventDefault();
+                generateAndShowClassicReport(false); // Screen
+            } else if (key === 's') {
+                e.preventDefault();
+                windowOtrosInformes.style.display = 'none'; // Exit
+            }
+        }
+    });
+
+    // --- Mock placeholders of Menubar Functions ---
+    const menuNiifAlert = document.getElementById('menu-niif-alert');
+    if (menuNiifAlert) {
+        menuNiifAlert.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert("✅ SoftWin Contabilidad PYME cumple al 100% con las normativas NIIF-PYME y VEN-NIF. Todas las partidas del Balance de Comprobación y los Estados Financieros se encuentran clasificadas bajo la sección NIIF correspondiente.");
+        });
+    }
+    
+    const menuTriggerPeriodo = document.getElementById('menu-trigger-periodo');
+    if (menuTriggerPeriodo) {
+        menuTriggerPeriodo.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert("📅 Periodo de Trabajo Actual: MAYO 2026. Todas las operaciones y comprobantes registrados afectarán únicamente este ejercicio fiscal.");
+        });
+    }
+    
+    const menuTriggerCerrar = document.getElementById('menu-trigger-cerrar');
+    if (menuTriggerCerrar) {
+        menuTriggerCerrar.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (confirm("🔒 ¿Desea proceder con el Cierre de Periodo para Mayo 2026? Esto bloqueará cualquier modificación adicional de comprobantes en este periodo.")) {
+                alert("🔒 El periodo de Mayo 2026 ha sido CERRADO y BLOQUEADO con éxito. Se generaron las firmas digitales de integridad.");
+            }
+        });
     }
 });

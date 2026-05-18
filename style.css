@@ -587,3 +587,601 @@ h1, h2, h3, .logo-text {
     }
 }
 
+/* ==========================================
+   CLASSIC DESKTOP OS SIMULATION (GÁLAC MODE)
+   ========================================== */
+
+.desktop-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    background-color: #334155;
+    overflow: hidden;
+    user-select: none;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    position: relative;
+    z-index: 1000;
+}
+
+/* OS Title Bar */
+.desktop-titlebar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to bottom, #f1f5f9, #cbd5e1);
+    border-bottom: 2px solid #94a3b8;
+    padding: 6px 12px;
+    height: 38px;
+    box-shadow: inset 0 1px 0 white;
+}
+
+.titlebar-logo {
+    display: flex;
+    align-items: center;
+}
+
+.softwin-oval-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 2px solid #ea580c;
+    border-radius: 18px;
+    padding: 2px 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    height: 24px;
+}
+
+.softwin-logo-s {
+    color: #ea580c;
+    font-weight: 900;
+    font-size: 0.95rem;
+    margin-right: 4px;
+    font-style: italic;
+}
+
+.softwin-logo-text {
+    color: white;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.titlebar-text {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #1e293b;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.8);
+    flex: 1;
+    text-align: center;
+    margin-right: 80px; /* Offset for symmetry */
+}
+
+.titlebar-controls {
+    display: flex;
+    gap: 4px;
+}
+
+.titlebar-btn {
+    width: 24px;
+    height: 20px;
+    background: linear-gradient(to bottom, #ffffff, #e2e8f0);
+    border: 1px solid #94a3b8;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #475569;
+}
+
+.titlebar-btn:hover {
+    background: linear-gradient(to bottom, #e2e8f0, #cbd5e1);
+    color: #0f172a;
+}
+
+.titlebar-btn.btn-close-os {
+    background: linear-gradient(to bottom, #fee2e2, #fca5a5);
+    border-color: #ef4444;
+    color: #991b1b;
+}
+
+.titlebar-btn.btn-close-os:hover {
+    background: linear-gradient(to bottom, #fca5a5, #f87171);
+    color: white;
+}
+
+/* Menu Bar */
+.desktop-menubar {
+    display: flex;
+    background-color: #f1f5f9;
+    border-bottom: 2px solid #cbd5e1;
+    padding: 2px 10px;
+    gap: 2px;
+    height: 30px;
+}
+
+.menu-item-dropdown {
+    position: relative;
+}
+
+.menu-trigger {
+    background: none;
+    border: none;
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+    border-radius: 3px;
+    outline: none;
+}
+
+.menu-trigger:hover, .menu-item-dropdown:hover .menu-trigger {
+    background-color: #cbd5e1;
+    color: #0f172a;
+}
+
+.menu-dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    border: 1px solid #94a3b8;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    z-index: 99999;
+    min-width: 250px;
+    border-radius: 0 4px 4px 4px;
+    padding: 4px 0;
+    animation: fadeIn 0.15s ease-out;
+}
+
+.menu-item-dropdown:hover .menu-dropdown-content {
+    display: block;
+}
+
+.menu-dropdown-content a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #334155;
+    text-decoration: none;
+    transition: all 0.1s;
+}
+
+.menu-dropdown-content a i {
+    width: 14px;
+    height: 14px;
+    opacity: 0.7;
+}
+
+.menu-dropdown-content a:hover {
+    background-color: #4f46e5;
+    color: white;
+}
+
+.menu-dropdown-content a:hover i {
+    opacity: 1;
+}
+
+/* Green border selection for Otros Informes */
+.menu-dropdown-content a.highlighted-menu-item {
+    border: 2px solid #22c55e;
+    background-color: rgba(34, 197, 94, 0.05);
+    font-weight: 700;
+    margin: 2px;
+    border-radius: 4px;
+}
+
+.menu-dropdown-content a.highlighted-menu-item:hover {
+    background-color: #22c55e;
+    color: white;
+}
+
+/* Workspace */
+.desktop-workspace {
+    flex: 1;
+    position: relative;
+    background: radial-gradient(circle, #334155 0%, #0f172a 100%);
+    overflow: hidden;
+}
+
+.desktop-wallpaper-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    opacity: 0.12;
+    pointer-events: none;
+    animation: fadeIn 1.5s ease-out;
+}
+
+.wallpaper-logo-circle {
+    width: 120px;
+    height: 120px;
+    border: 8px solid white;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    position: relative;
+}
+
+.wallpaper-logo-circle::after {
+    content: '';
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border: 6px solid white;
+    border-radius: 12px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.wallpaper-logo-text {
+    font-size: 4rem;
+    font-weight: 900;
+    color: white;
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: -2px;
+}
+
+.wallpaper-logo-text span {
+    color: #818cf8;
+}
+
+.wallpaper-logo-subtitle {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* Draggable Windows */
+.classic-window {
+    position: absolute;
+    background-color: #cbd5e1;
+    border: 3px solid #94a3b8;
+    border-radius: 6px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.classic-window-titlebar {
+    background: linear-gradient(to right, #475569, #334155);
+    color: white;
+    padding: 6px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 38px;
+    cursor: move;
+    border-bottom: 2px solid #475569;
+}
+
+.window-title-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.window-title-left i.title-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.window-controls {
+    display: flex;
+    gap: 4px;
+}
+
+.win-btn {
+    width: 22px;
+    height: 20px;
+    background-color: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.win-btn:hover {
+    background-color: rgba(255,255,255,0.3);
+}
+
+.win-btn.win-close {
+    background-color: #ef4444;
+    border-color: #dc2626;
+}
+
+.win-btn.win-close:hover {
+    background-color: #f87171;
+}
+
+.classic-window-body {
+    flex: 1;
+    padding: 15px;
+    background-color: #f1f5f9;
+}
+
+/* Informes Layout (Gálac Modal Styles) */
+.classic-informes-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 15px;
+}
+
+.classic-informes-left {
+    border-right: 1px solid #cbd5e1;
+    padding-right: 15px;
+}
+
+.classic-fieldset {
+    border: 2px solid #94a3b8;
+    border-radius: 4px;
+    padding: 15px;
+    background: white;
+    height: 100%;
+}
+
+.classic-fieldset-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #475569;
+    margin-top: -24px;
+    background: #f1f5f9;
+    display: inline-block;
+    padding: 0 6px;
+    margin-bottom: 12px;
+}
+
+.classic-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.classic-radio-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+}
+
+.classic-radio-label input[type="radio"] {
+    cursor: pointer;
+    width: 15px;
+    height: 15px;
+}
+
+.classic-informes-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.classic-report-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #b45309; /* Classic brown/reddish title color like in Gálac */
+    margin-bottom: 15px;
+    font-family: 'Outfit', sans-serif;
+    border-bottom: 1px solid #cbd5e1;
+    padding-bottom: 5px;
+}
+
+.classic-date-container {
+    background-color: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.classic-section-title {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #b45309;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.classic-form-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.classic-form-group label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #0369a1; /* Classic blue like in Gálac */
+    min-width: 90px;
+}
+
+.classic-input {
+    flex: 1;
+    padding: 4px 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 3px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #334155;
+    background-color: #f8fafc;
+    height: 28px;
+}
+
+.classic-input:focus {
+    outline: none;
+    border-color: #0369a1;
+    background-color: white;
+}
+
+/* Bottom Actions */
+.classic-informes-bottom {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #cbd5e1;
+}
+
+.classic-btn {
+    background: linear-gradient(to bottom, #ffffff, #e2e8f0);
+    border: 1px solid #94a3b8;
+    border-radius: 4px;
+    padding: 6px 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #334155;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0 1px 0 white;
+    min-width: 100px;
+    justify-content: center;
+}
+
+.classic-btn i {
+    width: 14px;
+    height: 14px;
+}
+
+.classic-btn:hover {
+    background: linear-gradient(to bottom, #e2e8f0, #cbd5e1);
+    color: #0f172a;
+    border-color: #475569;
+}
+
+.classic-btn:active {
+    background: #cbd5e1;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Paper view classic reports */
+.report-paper-classic {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 500;
+    color: #000;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.report-paper-classic h2 {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2px;
+}
+
+.report-paper-classic h3 {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2px;
+}
+
+.report-paper-classic p {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.report-paper-classic hr {
+    border: none;
+    border-top: 2px dashed #000;
+    margin: 15px 0;
+}
+
+.report-table-classic {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+}
+
+.report-table-classic th {
+    border-bottom: 2px dashed #000;
+    border-top: 2px dashed #000;
+    padding: 8px 4px;
+    font-weight: 700;
+    text-align: left;
+}
+
+.report-table-classic td {
+    padding: 6px 4px;
+}
+
+.report-table-classic tr.double-bottom td {
+    border-bottom: 4px double #000; /* Standard double line for final totals */
+}
+
+.report-table-classic tr.dashed-bottom td {
+    border-bottom: 1px dashed #000;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Scrollable wrap */
+.scrollable-body {
+    scrollbar-width: thin;
+    scrollbar-color: #94a3b8 #f1f5f9;
+}
+
+.scrollable-body::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.scrollable-body::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.scrollable-body::-webkit-scrollbar-thumb {
+    background-color: #94a3b8;
+    border-radius: 4px;
+}
+
+/* Utility to bring active window to front */
+.classic-window.active-window {
+    box-shadow: 0 15px 40px rgba(0,0,0,0.45);
+    border-color: #64748b;
+}
+
+.classic-window.active-window .classic-window-titlebar {
+    background: linear-gradient(to right, #6366f1, #4f46e5);
+}
+
