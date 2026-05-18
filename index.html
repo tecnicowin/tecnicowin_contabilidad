@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contabilidad Total | Sistema de Gestión PYME</title>
+    <meta name="description"
+        content="Sistema contable modular para pequeñas y medianas empresas con control fiscal y auditoría integrados.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registrado con éxito:', reg.scope))
+                    .catch(err => console.error('Error al registrar Service Worker:', err));
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <div class="logo-icon"></div>
+                    <h1 class="logo-text">Soft<span>Win</span></h1>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-group">
+                    <p class="nav-label">General</p>
+                    <a href="#" class="nav-item active" data-module="dashboard">
+                        <i data-lucide="layout-dashboard"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+                <div class="nav-group">
+                    <p class="nav-label">Operaciones</p>
+                    <a href="#" class="nav-item" data-module="accounting">
+                        <i data-lucide="book-open"></i>
+                        <span>Contabilizar Comprobantes</span>
+                    </a>
+                    <a href="#" class="nav-item" data-module="sales_purchases">
+                        <i data-lucide="shopping-cart"></i>
+                        <span>Registrar Ventas o Compras</span>
+                    </a>
+                    <a href="#" class="nav-item" data-module="chart">
+                        <i data-lucide="list-tree"></i>
+                        <span>Plan de Cuentas</span>
+                    </a>
+                    <a href="#" class="nav-item" data-module="banking">
+                        <i data-lucide="landmark"></i>
+                        <span>Bancos & Conciliación</span>
+                    </a>
+                </div>
+                <div class="nav-group">
+                    <p class="nav-label">Fiscal & Reportes</p>
+                    <a href="#" class="nav-item" data-module="taxes">
+                        <i data-lucide="percent"></i>
+                        <span>Control del IVA</span>
+                    </a>
+                    <a href="#" class="nav-item" data-module="islr">
+                        <i data-lucide="scale"></i>
+                        <span>Impuesto (ISLR)</span>
+                    </a>
+                    <a href="#" class="nav-item" data-module="reports">
+                        <i data-lucide="pie-chart"></i>
+                        <span>Estados Financieros</span>
+                    </a>
+                    <a href="#" class="nav-item" data-module="queries">
+                        <i data-lucide="search"></i>
+                        <span>Consultas & Auditoría</span>
+                    </a>
+                    <a href="#" class="nav-item" data-module="retenciones">
+                        <i data-lucide="file-check"></i>
+                        <span>Comprobantes de Retención</span>
+                    </a>
+                </div>
+                <div class="nav-group">
+                    <p class="nav-label">Configuración</p>
+                    <a href="#" class="nav-item" data-module="settings">
+                        <i data-lucide="settings"></i>
+                        <span>Empresa & Usuarios</span>
+                    </a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">AD</div>
+                    <div class="user-info">
+                        <p class="user-name">Administrador</p>
+                        <p class="user-role">Auditor Senior</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h2 id="current-module-title">Dashboard Operativo</h2>
+                </div>
+                <div class="topbar-right">
+                    <div class="period-selector">
+                        <i data-lucide="calendar"></i>
+                        <span>Periodo: Mayo 2026</span>
+                    </div>
+                    <div class="notifications">
+                        <i data-lucide="bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                </div>
+            </header>
+
+            <div id="module-container" class="module-view">
+                <!-- Dashboard content will be injected here -->
+                <div class="dashboard-grid">
+                    <div class="stats-card">
+                        <div class="card-header">
+                            <span class="card-title">Liquidez Corriente</span>
+                            <i data-lucide="trending-up" class="text-success"></i>
+                        </div>
+                        <div class="card-value">2.45</div>
+                        <div class="card-footer">
+                            <span class="text-success">+12%</span> vs mes anterior
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="card-header">
+                            <span class="card-title">Ventas Netas</span>
+                            <i data-lucide="dollar-sign" class="text-primary"></i>
+                        </div>
+                        <div class="card-value">$45,280.00</div>
+                        <div class="card-footer">
+                            <span class="text-success">+5.2%</span> proyectado
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="card-header">
+                            <span class="card-title">Impuestos por Pagar</span>
+                            <i data-lucide="alert-circle" class="text-warning"></i>
+                        </div>
+                        <div class="card-value">$8,412.50</div>
+                        <div class="card-footer">
+                            Vencimiento en <span class="text-warning">4 días</span>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="card-header">
+                            <span class="card-title">Conciliaciones Pend.</span>
+                            <i data-lucide="check-circle" class="text-muted"></i>
+                        </div>
+                        <div class="card-value">2</div>
+                        <div class="card-footer">
+                            Bancos actualizados
+                        </div>
+                    </div>
+                </div>
+
+                <div class="main-grid">
+                    <div class="grid-col span-2">
+                        <div class="glass-card chart-card">
+                            <div class="card-header">
+                                <h3>Flujo de Caja Mensual</h3>
+                                <div class="card-actions">
+                                    <button class="btn-icon"><i data-lucide="download"></i></button>
+                                </div>
+                            </div>
+                            <div class="chart-placeholder">
+                                <!-- Chart illustration -->
+                                <div class="bar-chart">
+                                    <div class="bar" style="height: 60%"></div>
+                                    <div class="bar" style="height: 45%"></div>
+                                    <div class="bar" style="height: 80%"></div>
+                                    <div class="bar" style="height: 55%"></div>
+                                    <div class="bar" style="height: 90%"></div>
+                                    <div class="bar" style="height: 70%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid-col">
+                        <div class="glass-card activity-card">
+                            <div class="card-header">
+                                <h3>Últimos Asientos</h3>
+                            </div>
+                            <div class="activity-list">
+                                <div class="activity-item">
+                                    <div class="activity-icon icon-blue"><i data-lucide="plus"></i></div>
+                                    <div class="activity-details">
+                                        <p class="activity-title">Venta Factura #A-452</p>
+                                        <p class="activity-time">Hace 2 horas</p>
+                                    </div>
+                                    <div class="activity-amount">$1,200.00</div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon icon-green"><i data-lucide="arrow-down"></i></div>
+                                    <div class="activity-details">
+                                        <p class="activity-title">Pago Proveedor XYZ</p>
+                                        <p class="activity-time">Hace 5 horas</p>
+                                    </div>
+                                    <div class="activity-amount">-$850.00</div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon icon-orange"><i data-lucide="refresh-cw"></i></div>
+                                    <div class="activity-details">
+                                        <p class="activity-title">Ajuste de Diferencial</p>
+                                        <p class="activity-time">Ayer</p>
+                                    </div>
+                                    <div class="activity-amount">$45.20</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="accounts.js"></script>
+    <script src="journal.js"></script>
+    <script src="reports_logic.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

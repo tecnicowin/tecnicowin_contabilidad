@@ -1,0 +1,24 @@
+{
+  "name": "SoftWin Contabilidad Total",
+  "short_name": "SoftWin Contabilidad",
+  "description": "Sistema de Contabilidad PWA y Control Fiscal Total para PYMEs",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#6366f1",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
